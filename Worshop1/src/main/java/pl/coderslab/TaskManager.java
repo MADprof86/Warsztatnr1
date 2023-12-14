@@ -13,18 +13,7 @@ import java.util.Scanner;
 public class TaskManager {
 
   public static void main(String[] args) {
-    /*String[][] inputArray = {
-        {"Simple task - very important", "2020-03-09", "true"},
-        {"Second task not so important", "2020-05-10", "false"},
-        {"Throw away trash", "2020-03-09", "false"},
-        {"Bardzo skomplikowany task który posida więcej niż kilka wyrazów", "2023-12-14", "true"}};
-    inputArray = removeElementFromArray(inputArray,3);
-    for (String[] row: inputArray) {
-      System.out.println(Arrays.toString(row));
-
-    }*/
-    runProgram();
-
+     runProgram();
   }
 
   public static void runProgram() {
@@ -35,9 +24,8 @@ public class TaskManager {
       taskDataBase = showUIOptions(taskDataBase);
       exitProgram(taskDataBase,filePath);
     } catch (IOException ex) {
-      System.out.println("Problem during dataBase reading" + ex.getMessage());
+      System.out.println("Problem during dataBase reading/writing" + ex.getMessage());
     }
-
   }
 
   private static String[][] showUIOptions(String[][] dataBase) {
@@ -61,6 +49,7 @@ public class TaskManager {
         case "add":
           taskManagerDataBase=resizeArray(taskManagerDataBase);
           taskManagerDataBase[taskManagerDataBase.length-1] = addTask(scanner);
+
           break;
 
         case "remove":
@@ -127,10 +116,10 @@ public class TaskManager {
    // System.out.printf("%-" + firstColumnMaxWidth + "s", line.substring(startIndex, endIndex));
     for (int i = 0; i < dataBase.length; i++) {
       String[] task = dataBase[i];
-      System.out.print(i + " : ");
+      System.out.print(i+1 + " : ");
       for (String element : task) {
         if (element != null) {
-          printWrappedLine(element, firstColumnMaxWidth,i);
+          printWrappedLine(element, firstColumnMaxWidth,i+1);
         }
       }
       System.out.println();
@@ -142,22 +131,18 @@ public class TaskManager {
     for(int i = 0; i< timesToPrint; i++){
       int startIndex = i*columnWidth;
       int endIndex = Math.min((i+1)*columnWidth,line.length());
-      String wrapperLogic =line.substring(startIndex, endIndex);
+      String wrapperLogic = line.substring(startIndex, endIndex);
 
       if(i == 0){
         System.out.printf("%-" + columnWidth + "s", wrapperLogic);
       }
       else if(i == timesToPrint-1 ){
-              System.out.printf("%-" + (columnWidth+4) + "s",lineNumber + " : " + wrapperLogic);
+              System.out.printf("\n"+"%-" + (columnWidth+4)+"s",lineNumber + " : " + wrapperLogic);
       }
       else System.out.printf("\n"+"%-" + columnWidth + "s%n",lineNumber + " : " + wrapperLogic);
       }
     }
-    private static Integer tryParse(String value){
-      try { return Integer.parseInt(value);
-      }
-      catch (NumberFormatException e) {return null;}
-    }
+
     private static String[][] removeElementFromArray(String[][] inputArray, int indexToRemove){
       String[][] newArray = new String[inputArray.length-1][];
       System.arraycopy(inputArray,0, newArray, 0,indexToRemove);
@@ -171,8 +156,8 @@ public class TaskManager {
       {
         System.out.println(ConsoleColors.BLUE + prompt + ConsoleColors.RESET);
         if(scanner.hasNextInt()){
-          int taskNumber = scanner.nextInt();
-          if(taskNumber< dataBase.length && taskNumber > 0){
+          int taskNumber = Integer.parseInt(scanner.nextLine());
+          if(taskNumber<= dataBase.length && taskNumber > 0){
             dataBase = removeElementFromArray(dataBase,taskNumber-1);
             System.out.printf("Task number %d has been deleted",taskNumber);
             break;
@@ -187,11 +172,11 @@ public class TaskManager {
             System.out.println("Wrong input. Try again.");
           }
         }
-
       }
       return dataBase;
   }
-  public static String[] addTask(Scanner scanner){
+
+  private static String[] addTask(Scanner scanner){
     String[] task = new String[3];
     while(true) {
       System.out.println("Describe your task");
@@ -200,11 +185,11 @@ public class TaskManager {
       task[1] = scanner.nextLine();
       System.out.println("Is the task important true/false");
       task[2] = scanner.nextLine();
+      System.out.println(ConsoleColors.RED +"Task successfully added" + ConsoleColors.RESET);
       return task;
-
     }
   }
-  public static void exitProgram(String[][] dataBase, String file) throws IOException{
+  private static void exitProgram(String[][] dataBase, String file) throws IOException{
     Path filePath = Paths.get(file);
 
     if(Files.exists(filePath)){
