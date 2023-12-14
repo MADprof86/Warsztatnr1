@@ -1,8 +1,11 @@
 package pl.coderslab;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -26,16 +29,18 @@ public class TaskManager {
 
   public static void runProgram() {
     String[][] taskDataBase;
+    String filePath = "src/main/java/pl/coderslab/tasks.csv";
     try {
-      taskDataBase = getTaskManagerDataBase("src/main/java/pl/coderslab/tasks.csv");
-      showUIOptions(taskDataBase);
+      taskDataBase = getTaskManagerDataBase(filePath);
+      taskDataBase = showUIOptions(taskDataBase);
+      exitProgram(taskDataBase,filePath);
     } catch (IOException ex) {
       System.out.println("Problem during dataBase reading" + ex.getMessage());
     }
 
   }
 
-  private static void showUIOptions(String[][] dataBase) {
+  private static String[][] showUIOptions(String[][] dataBase) {
     String[][] taskManagerDataBase = dataBase;
     String[] uiMenuOptions = {"add", "remove", "list", "exit"};
     String prompt = "\nPlease select an option: ";
@@ -54,13 +59,13 @@ public class TaskManager {
 
       switch (scannerInput) {
         case "add":
-          //AddTask()
+          taskManagerDataBase=resizeArray(taskManagerDataBase);
+          taskManagerDataBase[taskManagerDataBase.length-1] = addTask(scanner);
           break;
 
         case "remove":
           String[][] newDatabase = removeTask(taskManagerDataBase,scanner);
           if(newDatabase!= null) taskManagerDataBase=newDatabase;
-
           break;
 
         case "list":
@@ -68,7 +73,6 @@ public class TaskManager {
           break;
 
         case "exit":
-          //exitProgram();
           terminateProgram = true;
           break;
 
@@ -83,6 +87,7 @@ public class TaskManager {
 
       }
     }
+    return taskManagerDataBase;
   }
 
   private static String[][] resizeArray(String[][] arrayToResize) {
@@ -185,6 +190,30 @@ public class TaskManager {
 
       }
       return dataBase;
+  }
+  public static String[] addTask(Scanner scanner){
+    String[] task = new String[3];
+    while(true) {
+      System.out.println("Describe your task");
+      task[0] = scanner.nextLine();
+      System.out.println("Provide the deadline for task YEAR-DAY-MONTH");
+      task[1] = scanner.nextLine();
+      System.out.println("Is the task important true/false");
+      task[2] = scanner.nextLine();
+      return task;
+
+    }
+  }
+  public static void exitProgram(String[][] dataBase, String file) throws IOException{
+    Path filePath = Paths.get(file);
+
+    if(Files.exists(filePath)){
+      Files.writeString(filePath,"",StandardOpenOption.TRUNCATE_EXISTING);
+      for (String[] task: dataBase){
+        String output = String.join(",",task)+"\n";
+        Files.writeString(filePath, output, StandardOpenOption.APPEND);
+      }
+    }
   }
 }
 
